@@ -4,6 +4,10 @@ services:
     build: ./frontend
     ports:
       - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - ./frontend/node_modules
+      - ./scripts:/scripts
     depends_on:
       - backend
     environment:
@@ -13,6 +17,10 @@ services:
     build: ./backend
     ports:
       - "5000:5000"
+    volumes:
+      - ./backend:/app
+      - ./backend/node_modules
+      - ./scripts:/scripts
     environment:
       - DATABASE_URL=postgresql://user:password@db:5432/facturation
     depends_on:

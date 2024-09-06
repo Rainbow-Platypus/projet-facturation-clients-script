@@ -1,4 +1,4 @@
-FROM node:14
+FROM node:18
 
 WORKDIR /app
 
@@ -11,4 +11,4 @@ RUN npm run prisma:generate
 
 EXPOSE 5000
 
-CMD ["sh", "-c", "npm run prisma:migrate && npm start"]
+CMD ["npm", "start"]
