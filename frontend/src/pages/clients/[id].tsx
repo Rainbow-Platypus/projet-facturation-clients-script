@@ -7,7 +7,14 @@ import { Equipment } from '../../types';
 const BILLABLE_CATEGORIES = ['serveur', 'serveur linux', 'serveur windows'];
 const PRICE_PER_EQUIPMENT = 9;
 
-const StatCard = ({ title, value, icon: Icon, change }) => (
+interface StatCardProps {
+  title: string;
+  value: string | number;
+  icon: React.ElementType;
+  change: string;
+}
+
+const StatCard: React.FC<StatCardProps> = ({ title, value, icon: Icon, change }) => (
   <div className="bg-white rounded-lg shadow p-6">
     <div className="flex items-center justify-between">
       <div>
@@ -25,7 +32,11 @@ const StatCard = ({ title, value, icon: Icon, change }) => (
   </div>
 );
 
-const EquipmentCard = ({ equipment }: { equipment: Equipment }) => {
+interface EquipmentCardProps {
+  equipment: Equipment;
+}
+
+const EquipmentCard: React.FC<EquipmentCardProps> = ({ equipment }) => {
   const isBillable = BILLABLE_CATEGORIES.includes(equipment['Category Name'].toLowerCase());
   return (
     <div className={`bg-white rounded-lg shadow p-4 ${isBillable ? 'border-l-4 border-green-500' : ''}`}>
@@ -37,7 +48,12 @@ const EquipmentCard = ({ equipment }: { equipment: Equipment }) => {
   );
 };
 
-const EquipmentList = ({ equipment, title }: { equipment: Equipment[], title: string }) => (
+interface EquipmentListProps {
+  equipment: Equipment[];
+  title: string;
+}
+
+const EquipmentList: React.FC<EquipmentListProps> = ({ equipment, title }) => (
   <div className="mt-8">
     <h2 className="text-2xl font-bold text-gray-900 mb-4">{title} ({equipment.length})</h2>
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -48,10 +64,15 @@ const EquipmentList = ({ equipment, title }: { equipment: Equipment[], title: st
   </div>
 );
 
+interface ClientData {
+  name: string;
+  equipment: Equipment[];
+}
+
 export default function ClientDetailsPage() {
   const router = useRouter();
   const { id } = router.query;
-  const [clientData, setClientData] = useState<{ name: string, equipment: Equipment[] } | null>(null);
+  const [clientData, setClientData] = useState<ClientData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -62,11 +83,11 @@ export default function ClientDetailsPage() {
       setIsLoading(true);
       setError(null);
       try {
-        const response = await axios.get(`/api/clients/${id}`);
+        const response = await axios.get<ClientData>(`/api/clients/${id}`);
         setClientData(response.data);
       } catch (error) {
         console.error("Erreur lors du chargement des données du client:", error);
-        setError(`Erreur lors du chargement des données du client: ${error.response?.data?.message || error.message}`);
+        setError("Erreur lors du chargement des données du client. Veuillez réessayer.");
       } finally {
         setIsLoading(false);
       }
