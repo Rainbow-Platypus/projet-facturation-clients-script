@@ -1,9 +1,30 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { useCachedData } from '../hooks/useCachedData';
+import axios from 'axios';
+import { DashboardData } from '../types';
 
 const BillingPage = () => {
-  const { data, isLoading, error } = useCachedData();
+  const [data, setData] = useState<DashboardData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const response = await axios.get<DashboardData>('/api/dashboard');
+        setData(response.data);
+      } catch (error) {
+        console.error("Erreur lors du chargement des données:", error);
+        setError("Erreur lors du chargement des données. Veuillez réessayer.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   if (isLoading) {
     return <div className="flex justify-center items-center h-screen">Chargement des données...</div>;
@@ -21,6 +42,10 @@ const BillingPage = () => {
         </button>
       </div>
     );
+  }
+
+  if (!data) {
+    return <div className="flex justify-center items-center h-screen">Aucune donnée disponible</div>;
   }
 
   const chartData = data.clients.map(client => ({

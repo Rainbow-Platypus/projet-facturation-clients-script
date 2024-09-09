@@ -1,10 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Users, Laptop, DollarSign, ArrowUpRight, BarChart2, Search } from 'lucide-react';
-import Link from 'next/link';
 import { useRouter } from 'next/router';
 import axios from 'axios';
-import { useCachedData } from '../hooks/useCachedData';
-import { Client } from '../types';
+import { DashboardData, Client } from '../types';
 
 const PRICE_PER_EQUIPMENT = 9;
 
@@ -87,8 +85,28 @@ const BillingChart = () => (
 );
 
 export default function HomePage() {
-  const { data, isLoading, error } = useCachedData();
+  const [data, setData] = useState<DashboardData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const response = await axios.get<DashboardData>('/api/dashboard');
+        setData(response.data);
+      } catch (error) {
+        console.error("Erreur lors du chargement des données:", error);
+        setError("Erreur lors du chargement des données. Veuillez réessayer.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   if (isLoading) {
     return <div className="flex justify-center items-center h-screen">Chargement des données...</div>;
@@ -106,6 +124,10 @@ export default function HomePage() {
         </button>
       </div>
     );
+  }
+
+  if (!data) {
+    return <div className="flex justify-center items-center h-screen">Aucune donnée disponible</div>;
   }
 
   const { clients, totalEquipment, totalBillableEquipment, totalRevenue } = data;

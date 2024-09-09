@@ -3,7 +3,6 @@ import axios from 'axios';
 
 const SettingsPage = () => {
   const [pricePerEquipment, setPricePerEquipment] = useState(9);
-  const [cacheExpiration, setCacheExpiration] = useState(60);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -14,7 +13,6 @@ const SettingsPage = () => {
       try {
         const response = await axios.get('/api/settings');
         setPricePerEquipment(response.data.pricePerEquipment);
-        setCacheExpiration(response.data.cacheExpiration);
       } catch (error) {
         console.error("Erreur lors du chargement des paramètres:", error);
         setError(`Erreur lors du chargement des paramètres: ${error.response?.data?.message || error.message}`);
@@ -31,7 +29,7 @@ const SettingsPage = () => {
     setIsLoading(true);
     setError(null);
     try {
-      await axios.post('/api/settings', { pricePerEquipment, cacheExpiration });
+      await axios.post('/api/settings', { pricePerEquipment });
       alert('Paramètres sauvegardés !');
     } catch (error) {
       console.error("Erreur lors de la sauvegarde des paramètres:", error);
@@ -73,19 +71,6 @@ const SettingsPage = () => {
             id="pricePerEquipment"
             value={pricePerEquipment}
             onChange={(e) => setPricePerEquipment(Number(e.target.value))}
-            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-          />
-        </div>
-
-        <div className="mb-4">
-          <label htmlFor="cacheExpiration" className="block text-sm font-medium text-gray-700">
-            Expiration du cache (minutes)
-          </label>
-          <input
-            type="number"
-            id="cacheExpiration"
-            value={cacheExpiration}
-            onChange={(e) => setCacheExpiration(Number(e.target.value))}
             className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
           />
         </div>
